@@ -5,12 +5,12 @@ require_once __DIR__.'/session.php';
 require_once __DIR__.'/image.php';
 
 // -----------------------------
-// Funkce pro registraci uživatele
+// User registration function
 // -----------------------------
 function registerUser(array $data, array $file): array {
     $errors = [];
 
-    // kontrola povinných polí
+    // check required fields
     $required = ['firstname', 'lastname', 'email', 'phone', 'gender', 'login', 'password'];
     foreach ($required as $field) {
         if (empty($data[$field])) {
@@ -18,7 +18,7 @@ function registerUser(array $data, array $file): array {
         }
     }
 
-    // základní validace e-mailu a telefonu
+    // basic validation for email and phone
     if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
         $errors[] = "Neplatný e-mail.";
     }
@@ -26,43 +26,39 @@ function registerUser(array $data, array $file): array {
         $errors[] = "Neplatný telefon.";
     }
 
-    // kontrola unikátního loginu
+    // unique login check
     if (userExists($data['login'])) {
         $errors[] = "Uživatel s tímto loginem již existuje.";
     }
 
-    // zpracování profilové fotky
-    /*
+    // profile photo processing
+
     if (isset($file['photo']) && $file['photo']['error'] === 0) {
-        $photoPath = processImage($file['photo']); // TODO: implementace v image.php
+        $photoPath = processImage($file['photo']);
         if (!$photoPath) {
             $errors[] = "Chyba při zpracování fotky.";
         }
     } else {
         $photoPath = null;
     }
-    */
 
-    // Pokud jsou chyby, vrátíme je
+    // return errors if any
     if (!empty($errors)) {
         return ['success' => false, 'errors' => $errors];
     }
 
-    // Hashování hesla
+    // password hashing
     $passwordHash = password_hash($data['password'], PASSWORD_DEFAULT);
 
-    // Šifrování citlivých údajů
-    /*
-    $emailEncrypted = encryptData($data['email']);  // TODO: implementace v crypto.php
-    $phoneEncrypted = encryptData($data['phone']);  // TODO: implementace v crypto.php
-    */
+    // encrypt sesitive data
+    $emailEncrypted = encryptData($data['email']);
+    $phoneEncrypted = encryptData($data['phone']);
 
-    // Uložení do databáze
-    /*
+    // save user to database
     $sql = "INSERT INTO users
             (firstname, lastname, email, phone, gender, login, password_hash, photo_path, role)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'user')";
-    $stmt = db()->prepare($sql); // TODO: implementace db() v db.php
+    $stmt = db()->prepare($sql);
     $stmt->execute([
         $data['firstname'],
         $data['lastname'],
@@ -73,16 +69,14 @@ function registerUser(array $data, array $file): array {
         $passwordHash,
         $photoPath
     ]);
-    */
 
     return ['success' => true];
 }
 
 // -----------------------------
-// Funkce pro přihlášení uživatele
+// User login function
 // -----------------------------
 function auth_login(string $login, string $password): bool {
-    // TODO: napojení na databázi přes db()
     $sql = "SELECT * FROM users WHERE login = ?";
     $stmt = db()->prepare($sql);
     $stmt->execute([$login]);
@@ -91,7 +85,7 @@ function auth_login(string $login, string $password): bool {
     if (!$user) return false;
 
     if (password_verify($password, $user['password_hash'])) {
-        loginUserSession($user); // TODO: implementace session.php
+        loginUserSession($user);
         return true;
     }
 
@@ -99,7 +93,7 @@ function auth_login(string $login, string $password): bool {
 }
 
 // -----------------------------
-// Kontrola existujícího loginu
+// Check if user login exists
 // -----------------------------
 function userExists(string $login): bool {
     $sql = "SELECT COUNT(*) FROM users WHERE login = ?";
