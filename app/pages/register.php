@@ -1,8 +1,9 @@
 <?php
 require_once __DIR__.'/../core/session.php';
 require_once __DIR__.'/../core/auth.php';
+require_once __DIR__.'/../core/csrf.php';
 
-$pageTitle = 'Registrace';
+$pageTitle = 'Registrace'; csrf_check();
 
 // Handle form submission via POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -25,6 +26,8 @@ include __DIR__.'/../partials/header.php';
 <form method="post" enctype="multipart/form-data"
       class="mx-auto bg-white p-4 rounded shadow-sm"
       style="max-width:480px;">
+
+    <input type="hidden" name="csrf" value="<?=htmlspecialchars(csrf_token(),ENT_QUOTES)?>">
 
     <!-- Form title -->
     <h2 class="text-center mb-4">Registrace</h2>
