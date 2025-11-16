@@ -1,0 +1,89 @@
+:root {
+    --bs-body-bg: #dedede;
+    --bs-body-color: #3B3B3BFF;
+
+    --bs-primary: #25eb8f;
+    --bs-secondary: #64748b;
+    --bs-success: #10b981;
+    --bs-danger: #ef4444;
+    --bs-warning: #f59e0b;
+    --bs-info: #3b82f6;
+
+    --bs-border-radius: 16px;
+    --bs-border-radius-lg: 16px;
+
+    --bs-link-color: #57c781;
+    --bs-link-hover-color: #1d4ed8;
+}
+/* barva sidebaru */
+.text-bg-dark,
+.bg-dark {
+    background-color: #ffffff !important; /* Tvoje barva */
+}
+
+/* barva textu */
+.text-bg-dark,
+.bg-dark,
+.text-bg-dark .nav-link,
+.bg-dark .nav-link {
+    font-weight: 500;
+    color: #3b3b3b !important;
+}
+
+
+
+.bg-light{
+    background-color: #F1F2F7 !important;
+}
+
+
+/* hover */
+.bg-dark .nav-link:hover {
+    background-color: rgba(255,255,255,0.1);
+    color: #fff !important;
+}
+
+/* active */
+.bg-dark .nav-link.active {
+    background-color: #a69ff9 !important;
+    color: #ff0000 !important;
+}
+.sidebar-shadow {
+    box-shadow: 8px 0 16px -6px rgba(0,0,0,0.25);
+}
+.active {
+    background-color: #a69ff9 !important;
+    color: #fff !important;
+}
+
+.sidebar-nav {
+    border-top: 1px solid rgba(0,0,0,0.25);
+    border-right: 1px solid rgba(0,0,0,0.25);
+}
+
+/* ========== Responsive adjustments ========== */
+/* Na malých obrazovkách použijeme offcanvas; upravíme šířku a shadow */
+@media (max-width: 767.98px) {
+    /* Offcanvas obsah: nastavíme šířku sidebaru */
+    .offcanvas.offcanvas-start .offcanvas-body > .d-flex {
+        width: 260px;
+        min-height: 100vh;
+    }
+
+    /* Zabráníme nežádoucímu vnitřnímu marginu */
+    .offcanvas-body {
+        padding: 0;
+    }
+}
+
+/* Na větších obrazovkách přidej jemnější border a stín */
+@media (min-width: 768px) {
+    .sidebar-shadow {
+        box-shadow: 8px 0 20px -8px rgba(0,0,0,0.18);
+    }
+
+    .sidebar-nav {
+        border-top: 1px solid rgba(0,0,0,0.12);
+        border-right: 1px solid rgba(0,0,0,0.12);
+    }
+}
