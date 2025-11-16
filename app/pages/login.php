@@ -1,8 +1,8 @@
 <?php
-require_once __DIR__.'/../core/session.php';
-require_once __DIR__.'/../core/auth.php';
-require_once __DIR__.'/../core/csrf.php';
-$pageTitle='Přihlášení'; csrf_check();
+require_once __DIR__.'/app/core/session.php';
+require_once __DIR__.'/app/core/auth.php';
+require_once __DIR__.'/app/core/csrf.php';
+$pageTitle='Přihlášení';// csrf_check();
 if($_SERVER['REQUEST_METHOD']==='POST'){
     if(auth_login($_POST['login']??'',$_POST['password']??'')){ header('Location:/app/pages/home.php'); exit; }
     $err='Špatné přihlašovací údaje';
