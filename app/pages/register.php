@@ -45,6 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="form-group">
                 <label>Heslo - kontrola</label>
                 <input type="password" name="password_confirm" placeholder="Heslo znovu" required>
+                <span class="error-message" style="color:red; font-size:0.9rem; display:none;"></span>
             </div>
         </div>
 
@@ -72,4 +73,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <button type="submit" class="register-btn">Zaregistrovat se</button>
     </form>
+
+    <script>
+        const form = document.querySelector(".register-form");
+        const password = form.querySelector("input[name='password']");
+        const passwordConfirm = form.querySelector("input[name='password_confirm']");
+        const errorMessage = passwordConfirm.nextElementSibling;
+
+        form.addEventListener("submit", function(e) {
+            if (password.value !== passwordConfirm.value) {
+                e.preventDefault();
+                errorMessage.textContent = "Hesla se musí shodovat!";
+                errorMessage.style.display = "block";
+            } else {
+                errorMessage.style.display = "none";
+            }
+        });
+    </script>
 </div>
