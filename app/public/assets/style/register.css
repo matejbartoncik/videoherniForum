@@ -115,3 +115,23 @@
         flex-direction: column;
     }
 }
+
+@media (max-width: 768px) {
+    .login-wrapper,
+    .register-wrapper {
+        padding: 1rem;
+    }
+
+    .login-form,
+    .register-form {
+        max-width: 100%;
+        width: 100%;
+        padding: 1.5rem;
+        border-radius: 15px;
+    }
+
+    .register-form .form-row {
+        flex-direction: column;
+        gap: 1rem;
+    }
+}
