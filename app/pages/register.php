@@ -3,7 +3,7 @@ require_once __DIR__.'/../core/session.php';
 require_once __DIR__.'/../core/auth.php';
 require_once __DIR__.'/../core/csrf.php';
 
-$pageTitle = 'Registrace'; csrf_check();
+$pageTitle = 'Registrace'; // csrf_check();
 
 // Handle form submission via POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

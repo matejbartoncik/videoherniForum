@@ -1,7 +1,7 @@
 <?php
-require_once __DIR__.'/app/core/session.php';
-require_once __DIR__.'/app/core/auth.php';
-require_once __DIR__.'/app/core/csrf.php';
+require_once __DIR__.'/../core/session.php';
+require_once __DIR__.'/../core/auth.php';
+require_once __DIR__.'/../core/csrf.php';
 
 
 // DEMO režim: stránka používá hardcoded data místo databáze
@@ -22,10 +22,10 @@ $user = [
 ];
 $phone = $user['phone'];
 $alerts = [];
-include __DIR__.'/app/partials/header.php';
+include __DIR__.'/../partials/header.php';
 ?>
 
-<link rel="stylesheet" href="/app/public/assets/style/profile.css">
+<link rel="stylesheet" href="./../public/assets/style/profile.css">
 
 <div class="profile-container">
 
@@ -97,4 +97,4 @@ include __DIR__.'/app/partials/header.php';
 
 </div>
 
-<?php include __DIR__.'/app/partials/footer.php'; ?>
+<?php include __DIR__.'/../partials/footer.php'; ?>

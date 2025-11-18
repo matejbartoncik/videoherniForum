@@ -80,11 +80,11 @@ if (isset($_GET['id'])) {
     */
 }
 
-include __DIR__.'/app/partials/header.php';
+include __DIR__.'/../partials/header.php';
 ?>
 
 <!-- CUSTOM MESSAGES CSS -->
-<link rel="stylesheet" href="/app/public/assets/style/messages.css">
+<link rel="stylesheet" href="./../public/assets/style/messages.css">
 
 <div class="messages-container ">
     <!-- LEFT — MESSAGE CONTENT -->
@@ -321,4 +321,4 @@ include __DIR__.'/app/partials/header.php';
 })();
 </script>
 
-<?php include __DIR__.'/app/partials/footer.php'; ?>
+<?php include __DIR__.'/../partials/footer.php'; ?>

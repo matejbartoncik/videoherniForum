@@ -25,14 +25,14 @@
 
         <ul class="nav nav-pills flex-column mb-auto text-center fs-5 ">
             <li class="nav-item ">
-                <a href="./app/pages/home.php" class="nav-link text-white <?= $pageTitle=='Domů' ? 'active':'' ?>">
+                <a href="./../pages/home.php" class="nav-link text-white <?= $pageTitle=='Domů' ? 'active':'' ?>">
                     <i class="fa-solid fa-house"></i>
                     Domů
                 </a>
             </li>
 
             <li>
-                <a href="/app/pages/messages.php" class="nav-link text-white <?= $pageTitle=='Zprávy' ? 'active':'' ?>">
+                <a href="./../pages/messages.php" class="nav-link text-white <?= $pageTitle=='Zprávy' ? 'active':'' ?>">
                     <i class="fa-solid fa-inbox"></i>
                     Zprávy
 
@@ -40,7 +40,7 @@
             </li>
 
             <li>
-                <a href="/app/pages/profile.php" class="nav-link text-white <?= $pageTitle=='Profil' ? 'active':'' ?>">
+                <a href="./../pages/profile.php" class="nav-link text-white <?= $pageTitle=='Profil' ? 'active':'' ?>">
                     <i class="fa-solid fa-user"></i>
                     Profil
 
@@ -48,7 +48,7 @@
             </li>
 
             <li>
-                <a href="/app/pages/logout.php" class="nav-link text-white">
+                <a href="./../pages/logout.php" class="nav-link text-white">
                     Odhlásit se
                 </a>
             </li>
@@ -67,7 +67,7 @@
                 <hr>
                 <ul class="nav nav-pills flex-column mb-auto text-center fs-5">
                     <li class="nav-item ">
-                        <a href="/app/pages/home.php" class="nav-link text-white <?= $pageTitle=='Domů' ? 'active':'' ?>">
+                        <a href="./../pages/home.php" class="nav-link text-white <?= $pageTitle=='Domů' ? 'active':'' ?>">
                             <i class="fa-solid fa-house"></i>
                             Domů
                         </a>
