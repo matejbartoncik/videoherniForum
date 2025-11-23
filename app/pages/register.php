@@ -27,10 +27,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <h1>Registrace</h1>
 
+        <?php if (!empty($errors)): ?>
+            <div class="error-box" style="color:red; margin-bottom:10px;">
+                <?php foreach ($errors as $e) echo "<div>$e</div>"; ?>
+            </div>
+        <?php endif; ?>
+
         <div class="avatar-wrapper">
             <div class="avatar-placeholder"></div>
             <button type="button" class="upload-btn">Nahrát obrázek</button>
         </div>
+
+        <input type="file" name="photo" id="photoInput" accept="image/*" style="display:none;">
 
         <div class="form-group">
             <label>Přezdívka</label>

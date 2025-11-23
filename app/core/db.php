@@ -3,7 +3,7 @@
 function db(): PDO {
     static $pdo = null;
     if ($pdo === null) {
-        $host = 'localhost';
+        $host = 'https://herniforum.page.gd/';
         $dbname = 'your_database';
         $user = 'your_user';
         $pass = 'your_password';
