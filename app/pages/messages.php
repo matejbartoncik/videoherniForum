@@ -72,7 +72,7 @@ if (isset($_GET['id'])) {
 
                 <div class="d-flex align-items-center gap-3 mb-3">
                     <?php if ($currentMessage['sender_avatar']): ?>
-                        <img src="uploads/avatars/<?= htmlspecialchars($currentMessage['sender_avatar']) ?>" class="rounded-circle" width="52" height="52" style="object-fit:cover;">
+                        <img src="data:image/jpeg;base64,<?= base64_encode($currentMessage['sender_avatar']) ?>" class="rounded-circle" width="52" height="52" style="object-fit:cover;">
                     <?php else: ?>
                         <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white" style="width:52px;height:52px;">
                             <?= strtoupper(substr($currentMessage['sender_username'], 0, 1)) ?>
@@ -130,9 +130,9 @@ if (isset($_GET['id'])) {
                        data-msg-body="<?= htmlspecialchars($msg['body'], ENT_QUOTES) ?>"
                        data-msg-sender="<?= htmlspecialchars($msg['sender_username'], ENT_QUOTES) ?>"
                        data-msg-date="<?= htmlspecialchars(date('j. n. Y H:i', strtotime($msg['created_at'])), ENT_QUOTES) ?>"
-                       data-msg-avatar="<?= htmlspecialchars($msg['sender_avatar'] ?? '', ENT_QUOTES) ?>">
+                       data-msg-avatar="<?= $msg['sender_avatar'] ? base64_encode($msg['sender_avatar']) : '' ?>">
                         <?php if ($msg['sender_avatar']): ?>
-                            <img src="uploads/avatars/<?= htmlspecialchars($msg['sender_avatar']) ?>" alt="Avatar" class="rounded-circle" width="42" height="42" style="object-fit:cover;">
+                            <img src="data:image/jpeg;base64,<?= base64_encode($msg['sender_avatar']) ?>" alt="Avatar" class="rounded-circle" width="42" height="42" style="object-fit:cover;">
                         <?php else: ?>
                             <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white" style="width:42px;height:42px;">
                                 <?= strtoupper(substr($msg['sender_username'], 0, 1)) ?>
@@ -207,7 +207,7 @@ if (isset($_GET['id'])) {
 
         function buildContent(body, sender, date, avatar){
             var avatarHtml = avatar
-                ? '<img src="uploads/avatars/'+escapeHtml(avatar)+'" alt="Avatar" class="rounded-circle me-3" width="52" height="52" style="object-fit:cover;">'
+                ? '<img src="data:image/jpeg;base64,'+avatar+'" alt="Avatar" class="rounded-circle me-3" width="52" height="52" style="object-fit:cover;">'
                 : '<div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center text-white me-3" style="width:52px;height:52px;">'+sender.charAt(0).toUpperCase()+'</div>';
 
             return '<div class="d-flex align-items-center mb-3">'+avatarHtml+

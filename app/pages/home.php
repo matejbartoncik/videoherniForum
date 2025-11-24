@@ -114,7 +114,13 @@ unset($topic);
                 </div>
 
                 <div class="topic-author">
-                    <i class="fa-solid fa-user me-1"></i>
+                    <?php if ($t['author_avatar']): ?>
+                        <img src="data:image/jpeg;base64,<?= base64_encode($t['author_avatar']) ?>" class="rounded-circle" width="52" height="52" style="object-fit:cover;">
+                    <?php else: ?>
+                        <div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center text-white" style="width:52px;height:52px;">
+                            <?= strtoupper(substr($t['author_username'], 0, 1)) ?>
+                        </div>
+                    <?php endif; ?>
                     <?= htmlspecialchars($t['author_username']) ?>
                 </div>
 

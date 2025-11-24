@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $result = registerUser($_POST, $_FILES);
     if ($result['success']) {
         // Redirect after successful registration
-        header('Location: login.php');
+        header('Location:/?page=login');
         exit;
     } else {
         // Store errors to display the user
