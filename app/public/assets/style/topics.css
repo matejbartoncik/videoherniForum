@@ -1,0 +1,201 @@
+/* Topic Card Styles */
+.topic-card {
+    background: #fff;
+    padding: 16px;
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 16px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.topic-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.topic-card.expanded {
+    cursor: default;
+}
+
+.topic-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.topic-title {
+    font-weight: 600;
+    font-size: 18px;
+    color: #1a1a1a;
+}
+
+.topic-date {
+    font-size: 12px;
+    color: #666;
+    white-space: nowrap;
+}
+
+.topic-author {
+    margin-top: 4px;
+    font-size: 13px;
+    color: #888;
+}
+
+.topic-content {
+    margin-top: 12px;
+    color: #444;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.topic-content.collapsed {
+    max-height: 100px;
+    overflow: hidden;
+    position: relative;
+}
+
+.topic-content.collapsed::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: linear-gradient(transparent, white);
+}
+
+.topic-actions {
+    margin-top: 12px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.topic-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: transparent;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.topic-action-btn:hover {
+    background: #f5f5f5;
+    border-color: #ccc;
+    color: #333;
+}
+
+.topic-action-btn.liked {
+    background: #ffe0e0;
+    border-color: #ff6b6b;
+    color: #ff6b6b;
+}
+
+.topic-action-btn.liked:hover {
+    background: #ffc9c9;
+}
+
+.topic-action-btn i {
+    font-size: 14px;
+}
+
+/* Comments Section */
+.comments-section {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.comments-header {
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: #333;
+}
+
+.comment-item {
+    padding: 12px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.comment-author {
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.comment-date {
+    font-size: 11px;
+    color: #999;
+}
+
+.comment-body {
+    margin-top: 8px;
+    color: #555;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.comment-form {
+    margin-top: 16px;
+    padding: 16px;
+    background: #f5f5f5;
+    border-radius: 8px;
+}
+
+.comment-form textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    resize: vertical;
+    min-height: 80px;
+}
+
+.comment-form textarea:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+.comment-form-actions {
+    margin-top: 12px;
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.no-comments {
+    color: #999;
+    font-size: 14px;
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+}
+
+/* Expand/Collapse indicator */
+.expand-indicator {
+    font-size: 12px;
+    color: #007bff;
+    margin-top: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.expand-indicator i {
+    transition: transform 0.2s ease;
+}
+
+.topic-card.expanded .expand-indicator i {
+    transform: rotate(180deg);
+}

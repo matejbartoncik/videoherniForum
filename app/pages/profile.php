@@ -22,7 +22,6 @@ $user = [
 ];
 $phone = $user['phone'];
 $alerts = [];
-include __DIR__.'/../partials/header.php';
 ?>
 
 <link rel="stylesheet" href="./../public/assets/style/profile.css">
@@ -96,5 +95,3 @@ include __DIR__.'/../partials/header.php';
     </div>
 
 </div>
-
-<?php include __DIR__.'/../partials/footer.php'; ?>

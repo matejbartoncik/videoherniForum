@@ -1,181 +1,164 @@
 <?php
-require_once __DIR__.'/../core/session.php';
-//require_once __DIR__.'/../core/auth.php';
-//require_once __DIR__.'/../core/db.php';
-//require_once __DIR__.'/../core/csrf.php';
-//require_once __DIR__.'/../core/crypto.php';
+require_once __DIR__ . '/../models/message.php';
 
-//auth_require();
-$pageTitle = "Zprávy";
-//csrf_check();
-
-// --- Hardcodovaná data (původní DB dotazy zakomentovány) ---
-// --- Načíst všechny uživatele pro seznam adresátů ---
-// $users = $pdo->query("SELECT id, login, avatar_path FROM users ORDER BY login")->fetchAll();
-$users = [
-    ['id' => 1, 'login' => 'demo', 'avatar_path' => null],
-    ['id' => 2, 'login' => 'martin', 'avatar_path' => 'martin.jpg'],
-    ['id' => 3, 'login' => 'jirka', 'avatar_path' => null],
-];
-
-// --- Inbox zprávy pro přihlášeného uživatele ---
-/*
-$stmt = $pdo->prepare("""
-    SELECT m.*, u.login AS sender_login, u.avatar_path
-    FROM messages m 
-    JOIN users u ON m.sender_id = u.id
-    WHERE m.recipient_id = ?
-    ORDER BY m.created_at DESC
-""");
-$stmt->execute([$_SESSION['user']['id']]);
-$inbox = $stmt->fetchAll();
-*/
-
-// zajistíme existenci přihlášeného uživatele pro ukázku
+// Ensure user session exists
 if (!isset($_SESSION['user'])) {
-    $_SESSION['user'] = ['id' => 1, 'login' => 'demo'];
+    $_SESSION['user'] = ['id' => 1, 'username' => 'demo'];
 }
 
-$inbox = [
-    [
-        'id' => 101,
-        'sender_id' => 2,
-        'sender_login' => 'martin',
-        'avatar_path' => null,
-        'recipient_id' => 1,
-        'created_at' => '2025-11-16 12:34:00',
-        'body' => "Ahoj, toto je testovací zpráva od Martina."
-    ],
-    [
-        'id' => 102,
-        'sender_id' => 3,
-        'sender_login' => 'jirka',
-        'avatar_path' => null,
-        'recipient_id' => 1,
-        'created_at' => '2025-11-15 09:10:00',
-        'body' => "Čau, máš chvilku?"
-    ],
-];
+$err = null;
+$success = null;
 
-// --- Detail vybrané zprávy (GET id) ---
+// Handle sending a message
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'send') {
+    $recipient_id = (int)($_POST['recipient_id'] ?? 0);
+    $body = trim($_POST['body'] ?? '');
+    $subject = trim($_POST['subject'] ?? '');
+
+    if ($recipient_id <= 0) {
+        $err = 'Please select a recipient';
+    } elseif ($body === '') {
+        $err = 'Message body cannot be empty';
+    } else {
+        if (message_send($_SESSION['user']['id'], $recipient_id, $subject, $body)) {
+            $success = 'Message sent successfully';
+            header('Location: ?page=messages');
+            exit;
+        } else {
+            $err = 'Error sending message';
+        }
+    }
+}
+
+// Fetch users for recipient selection
+$users = message_fetch_all_users($_SESSION['user']['id']);
+
+// Fetch inbox messages
+$inbox = message_fetch_inbox($_SESSION['user']['id']);
+
+// Get current message detail
 $currentMessage = null;
 if (isset($_GET['id'])) {
     $id = (int)$_GET['id'];
-    foreach ($inbox as $m) {
-        if ($m['id'] === $id && $m['recipient_id'] === $_SESSION['user']['id']) {
-            $currentMessage = $m;
-            break;
-        }
-    }
+    $currentMessage = message_fetch_by_id($id, $_SESSION['user']['id']);
 
-    // Pokud by zpráva byla šifrovaná v DB, zde by šla dešifrace (původně):
-    /*
-    if ($currentMessage) {
-        $currentMessage['body'] = aes_gcm_decrypt(
-            $currentMessage['body_enc'],
-            $currentMessage['body_iv'],
-            $currentMessage['body_tag']
-        );
+    // Mark as read if recipient is viewing
+    if ($currentMessage && $currentMessage['recipient_id'] === $_SESSION['user']['id']) {
+        message_mark_as_read($id, $_SESSION['user']['id']);
     }
-    */
 }
-
-include __DIR__.'/../partials/header.php';
 ?>
 
 <!-- CUSTOM MESSAGES CSS -->
-<link rel="stylesheet" href="./../public/assets/style/messages.css">
+<link rel="stylesheet" href="public/assets/style/messages.css">
 
-<div class="messages-container ">
-    <!-- LEFT — MESSAGE CONTENT -->
-    <div class=" left-panel card-section mb-3 mb-lg-0">
+<div class="container mt-4">
+    <?php if (!empty($err)): ?><div class="alert alert-danger"><?= htmlspecialchars($err) ?></div><?php endif; ?>
+    <?php if (!empty($success)): ?><div class="alert alert-success"><?= htmlspecialchars($success) ?></div><?php endif; ?>
 
-        <?php if (!$currentMessage): ?>
+    <div class="messages-container">
+        <!-- LEFT — MESSAGE CONTENT -->
+        <div class="left-panel card-section mb-3 mb-lg-0">
 
-            <!-- Empty state -->
-            <div class="empty-wrapper text-center py-5">
-                <i class="fa-regular fa-envelope-open fa-4x mb-3 text-dark"></i>
-                <div class="fw-semibold fs-5">Vyberte zprávu</div>
-            </div>
+            <?php if (!$currentMessage): ?>
 
-        <?php else: ?>
-
-            <div class="d-flex align-items-center gap-3 mb-3">
-                <?php if ($currentMessage['avatar_path']): ?>
-                    <img src="/uploads/avatars/<?= htmlspecialchars($currentMessage['avatar_path']) ?>" class="rounded-circle" width="52" height="52">
-                <?php else: ?>
-                    <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white" style="width:52px;height:52px;">?</div>
-                <?php endif; ?>
-
-                <div>
-                    <div class="fw-bold"><?= htmlspecialchars($currentMessage['sender_login']) ?></div>
-                    <div class="text-muted small"><?= htmlspecialchars(substr($currentMessage['created_at'], 0, 16)) ?></div>
+                <!-- Empty state -->
+                <div class="empty-wrapper text-center py-5">
+                    <i class="fa-regular fa-envelope-open fa-4x mb-3 text-dark"></i>
+                    <div class="fw-semibold fs-5">Vyberte zprávu</div>
                 </div>
-            </div>
 
-            <div class="message-body-box">
-                <p class="mb-0"><?= nl2br(htmlspecialchars($currentMessage['body'])) ?></p>
-            </div>
+            <?php else: ?>
 
-        <?php endif; ?>
-
-    </div>
-    <!-- RIGHT — LIST OF SENDERS -->
-    <div class="right-panel card-section">
-
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="fw-bold mb-0">
-                <i class="fa-solid fa-envelope-open-text me-2"></i>
-                Zprávy
-            </h5>
-
-            <!-- New Message Button -->
-            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#newMessageModal">
-                <i class="fa-solid fa-pencil"></i>
-            </button>
-        </div>
-
-        <div class="list-group message-list">
-
-            <?php if (empty($inbox)): ?>
-                <div class="text-center py-5 opacity-75">
-                    <i class="fa-regular fa-envelope fa-3x mb-3"></i>
-                    <div>Žádné zprávy</div>
-                </div>
-            <?php endif; ?>
-
-            <?php foreach ($inbox as $msg): ?>
-                <a href="?id=<?= $msg['id'] ?>"
-                   class="js-msg-link list-group-item list-group-item-action d-flex align-items-center gap-3 <?= (isset($_GET['id']) && $_GET['id']==$msg['id']) ? 'active' : '' ?>"
-                   data-msg-id="<?= $msg['id'] ?>"
-                   data-msg-body="<?= htmlspecialchars($msg['body'], ENT_QUOTES) ?>"
-                   data-msg-sender="<?= htmlspecialchars($msg['sender_login'], ENT_QUOTES) ?>"
-                   data-msg-date="<?= htmlspecialchars(substr($msg['created_at'], 0, 16), ENT_QUOTES) ?>"
-                   data-msg-avatar="<?= htmlspecialchars($msg['avatar_path'] ?? '', ENT_QUOTES) ?>">
-                    <?php if ($msg['avatar_path']): ?>
-                        <img src="/uploads/avatars/<?= htmlspecialchars($msg['avatar_path']) ?>" alt="Avatar" class="rounded-circle" width="42" height="42" style="object-fit:cover;">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <?php if ($currentMessage['sender_avatar']): ?>
+                        <img src="uploads/avatars/<?= htmlspecialchars($currentMessage['sender_avatar']) ?>" class="rounded-circle" width="52" height="52" style="object-fit:cover;">
                     <?php else: ?>
-                        <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white" style="width:42px;height:42px;">?</div>
+                        <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white" style="width:52px;height:52px;">
+                            <?= strtoupper(substr($currentMessage['sender_username'], 0, 1)) ?>
+                        </div>
                     <?php endif; ?>
 
                     <div>
-                        <div class="fw-semibold"><?= htmlspecialchars($msg['sender_login']) ?></div>
-                        <div class="text-muted small"><?= htmlspecialchars(substr($msg['created_at'], 0, 16)) ?></div>
+                        <div class="fw-bold"><?= htmlspecialchars($currentMessage['sender_username']) ?></div>
+                        <div class="text-muted small"><?= htmlspecialchars(date('j. n. Y H:i', strtotime($currentMessage['created_at']))) ?></div>
                     </div>
-                </a>
-            <?php endforeach; ?>
+                </div>
+
+                <?php if ($currentMessage['subject']): ?>
+                    <div class="mb-2">
+                        <strong>Předmět:</strong> <?= htmlspecialchars($currentMessage['subject']) ?>
+                    </div>
+                <?php endif; ?>
+
+                <div class="message-body-box">
+                    <p class="mb-0"><?= nl2br(htmlspecialchars($currentMessage['body'])) ?></p>
+                </div>
+
+            <?php endif; ?>
 
         </div>
 
+        <!-- RIGHT — LIST OF MESSAGES -->
+        <div class="right-panel card-section">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">
+                    <i class="fa-solid fa-envelope-open-text me-2"></i>
+                    Zprávy
+                </h5>
+
+                <!-- New Message Button -->
+                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#newMessageModal">
+                    <i class="fa-solid fa-pencil"></i>
+                </button>
+            </div>
+
+            <div class="list-group message-list">
+
+                <?php if (empty($inbox)): ?>
+                    <div class="text-center py-5 opacity-75">
+                        <i class="fa-regular fa-envelope fa-3x mb-3"></i>
+                        <div>Žádné zprávy</div>
+                    </div>
+                <?php endif; ?>
+
+                <?php foreach ($inbox as $msg): ?>
+                    <a href="?page=messages&id=<?= $msg['id'] ?>"
+                       class="js-msg-link list-group-item list-group-item-action d-flex align-items-center gap-3 <?= (isset($_GET['id']) && $_GET['id']==$msg['id']) ? 'active' : '' ?> <?= $msg['read_at'] ? '' : 'fw-bold' ?>"
+                       data-msg-id="<?= $msg['id'] ?>"
+                       data-msg-body="<?= htmlspecialchars($msg['body'], ENT_QUOTES) ?>"
+                       data-msg-sender="<?= htmlspecialchars($msg['sender_username'], ENT_QUOTES) ?>"
+                       data-msg-date="<?= htmlspecialchars(date('j. n. Y H:i', strtotime($msg['created_at'])), ENT_QUOTES) ?>"
+                       data-msg-avatar="<?= htmlspecialchars($msg['sender_avatar'] ?? '', ENT_QUOTES) ?>">
+                        <?php if ($msg['sender_avatar']): ?>
+                            <img src="uploads/avatars/<?= htmlspecialchars($msg['sender_avatar']) ?>" alt="Avatar" class="rounded-circle" width="42" height="42" style="object-fit:cover;">
+                        <?php else: ?>
+                            <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white" style="width:42px;height:42px;">
+                                <?= strtoupper(substr($msg['sender_username'], 0, 1)) ?>
+                            </div>
+                        <?php endif; ?>
+
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold"><?= htmlspecialchars($msg['sender_username']) ?></div>
+                            <div class="text-muted small"><?= htmlspecialchars(date('j. n. Y H:i', strtotime($msg['created_at']))) ?></div>
+                            <?php if (!$msg['read_at']): ?>
+                                <span class="badge bg-primary">Nová</span>
+                            <?php endif; ?>
+                        </div>
+                    </a>
+                <?php endforeach; ?>
+
+            </div>
+
+        </div>
     </div>
 </div>
-
-
 
 <!-- MODAL — NEW MESSAGE -->
 <div class="modal fade" id="newMessageModal" tabindex="-1">
     <div class="modal-dialog">
-        <form method="post" class="modal-content">
+        <form method="post" action="?page=messages" class="modal-content">
 
             <input type="hidden" name="action" value="send">
 
@@ -187,13 +170,15 @@ include __DIR__.'/../partials/header.php';
             <div class="modal-body">
 
                 <label class="form-label fw-semibold">Příjemce</label>
-                <select name="recipient_id" class="form-select mb-3">
+                <select name="recipient_id" class="form-select mb-3" required>
+                    <option value="">-- Vyberte příjemce --</option>
                     <?php foreach ($users as $u): ?>
-                        <?php if ($u['id'] != $_SESSION['user']['id']): ?>
-                            <option value="<?= $u['id'] ?>"><?= htmlspecialchars($u['login']) ?></option>
-                        <?php endif; ?>
+                        <option value="<?= $u['id'] ?>"><?= htmlspecialchars($u['username']) ?> (<?= htmlspecialchars($u['first_name'] . ' ' . $u['last_name']) ?>)</option>
                     <?php endforeach; ?>
                 </select>
+
+                <label class="form-label fw-semibold">Předmět (volitelné)</label>
+                <input type="text" name="subject" class="form-control mb-3" maxlength="150">
 
                 <label class="form-label fw-semibold">Zpráva</label>
                 <textarea name="body" rows="4" class="form-control" required></textarea>
@@ -201,124 +186,57 @@ include __DIR__.'/../partials/header.php';
             </div>
 
             <div class="modal-footer">
-                <button class="btn btn-secondary" data-bs-dismiss="modal">Zavřít</button>
-                <button class="btn btn-primary">Odeslat</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zavřít</button>
+                <button type="submit" class="btn btn-primary">Odeslat</button>
             </div>
 
         </form>
     </div>
 </div>
 
-
-<!-- Offcanvas pro mobilní zobrazení detailu zprávy -->
-<div class="offcanvas offcanvas-end d-lg-none" tabindex="-1" id="messageDetailOffcanvas" aria-labelledby="messageDetailLabel">
-  <div class="offcanvas-header">
-    <h5 class="offcanvas-title" id="messageDetailLabel">Zpráva</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Zavřít"></button>
-  </div>
-  <div class="offcanvas-body">
-    <div id="messageDetailContent">Vyberte zprávu.</div>
-  </div>
-</div>
-
 <script>
-(function(){
-  var offcanvasEl = document.getElementById('messageDetailOffcanvas');
-  if (!offcanvasEl) return;
+    (function(){
+        var offcanvasEl = document.getElementById('messageDetailOffcanvas');
+        if (!offcanvasEl) return;
 
-  function escapeHtml(str){
-    return String(str).replace(/[&<>"']/g, function(ch){
-      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[ch];
-    });
-  }
-
-  function buildContent(body, sender, date, avatar){
-    var avatarHtml = avatar
-      ? '<img src="/uploads/avatars/'+escapeHtml(avatar)+'" alt="Avatar" class="rounded-circle me-3" width="52" height="52" style="object-fit:cover;">'
-      : '<div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center text-white me-3" style="width:52px;height:52px;">?</div>';
-
-    return '<div class="d-flex align-items-center mb-3">'+avatarHtml+
-           '<div><div class="fw-bold">'+escapeHtml(sender)+'</div>'+
-           '<div class="text-muted small">'+escapeHtml(date)+'</div></div></div>'+
-           '<div class="message-body-box"><p class="mb-0">'+escapeHtml(body).replace(/\n/g,'<br>')+'</p></div>';
-  }
-
-  function openOffcanvas(){
-    document.body.classList.add('offcanvas-open');
-    var backdrop = document.createElement('div');
-    backdrop.className = 'offcanvas-backdrop-custom';
-    backdrop.onclick = closeOffcanvas;
-    document.body.appendChild(backdrop);
-    offcanvasEl.classList.add('show');
-    offcanvasEl.style.cssText = 'visibility:visible;transform:translateX(0);transition:transform 0.25s ease';
-  }
-
-  function closeOffcanvas(){
-    document.body.classList.remove('offcanvas-open');
-    var backdrop = document.querySelector('.offcanvas-backdrop-custom');
-    if (backdrop) backdrop.remove();
-    offcanvasEl.classList.remove('show');
-    offcanvasEl.style.transform = '';
-  }
-
-  document.querySelectorAll('.js-msg-link').forEach(function(link){
-    link.addEventListener('click', function(e){
-      if (window.innerWidth < 992 && e.button === 0 && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
-        e.preventDefault();
-
-        var content = document.getElementById('messageDetailContent');
-        if (!content) return;
-
-        content.innerHTML = buildContent(
-          link.getAttribute('data-msg-body') || '',
-          link.getAttribute('data-msg-sender') || '',
-          link.getAttribute('data-msg-date') || '',
-          link.getAttribute('data-msg-avatar') || ''
-        );
-
-        try {
-          if (window.bootstrap?.Offcanvas) {
-            bootstrap.Offcanvas.getOrCreateInstance(offcanvasEl).show();
-          } else {
-            openOffcanvas();
-          }
-          history.replaceState(null, '', link.href);
-        } catch(e) {
-          openOffcanvas();
+        function escapeHtml(str){
+            return String(str).replace(/[&<>"']/g, function(ch){
+                return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[ch];
+            });
         }
-      }
-    });
-  });
 
-  var closeBtn = offcanvasEl.querySelector('.btn-close');
-  if (closeBtn) {
-    closeBtn.onclick = function(){
-      try {
-        if (window.bootstrap?.Offcanvas) {
-          bootstrap.Offcanvas.getOrCreateInstance(offcanvasEl).hide();
-        } else {
-          closeOffcanvas();
+        function buildContent(body, sender, date, avatar){
+            var avatarHtml = avatar
+                ? '<img src="uploads/avatars/'+escapeHtml(avatar)+'" alt="Avatar" class="rounded-circle me-3" width="52" height="52" style="object-fit:cover;">'
+                : '<div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center text-white me-3" style="width:52px;height:52px;">'+sender.charAt(0).toUpperCase()+'</div>';
+
+            return '<div class="d-flex align-items-center mb-3">'+avatarHtml+
+                '<div><div class="fw-bold">'+escapeHtml(sender)+'</div>'+
+                '<div class="text-muted small">'+escapeHtml(date)+'</div></div></div>'+
+                '<div class="message-body-box"><p class="mb-0">'+escapeHtml(body).replace(/\n/g,'<br>')+'</p></div>';
         }
-      } catch(e) {
-        closeOffcanvas();
-      }
-    };
-  }
 
-  offcanvasEl.addEventListener('show.bs.offcanvas', function(ev){
-    var trigger = ev.relatedTarget;
-    if (!trigger) return;
-    var content = document.getElementById('messageDetailContent');
-    if (!content) return;
+        document.querySelectorAll('.js-msg-link').forEach(function(link){
+            link.addEventListener('click', function(e){
+                if (window.innerWidth < 992 && e.button === 0 && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                    e.preventDefault();
+                    var content = document.getElementById('messageDetailContent');
+                    if (!content) return;
 
-    content.innerHTML = buildContent(
-      trigger.getAttribute('data-msg-body') || '',
-      trigger.getAttribute('data-msg-sender') || '',
-      trigger.getAttribute('data-msg-date') || '',
-      trigger.getAttribute('data-msg-avatar') || ''
-    );
-  });
-})();
+                    content.innerHTML = buildContent(
+                        link.getAttribute('data-msg-body') || '',
+                        link.getAttribute('data-msg-sender') || '',
+                        link.getAttribute('data-msg-date') || '',
+                        link.getAttribute('data-msg-avatar') || ''
+                    );
+
+                    try {
+                        if (window.bootstrap?.Offcanvas) {
+                            bootstrap.Offcanvas.getOrCreateInstance(offcanvasEl).show();
+                        }
+                    } catch(err) {}
+                }
+            });
+        });
+    })();
 </script>
-
-<?php include __DIR__.'/../partials/footer.php'; ?>
