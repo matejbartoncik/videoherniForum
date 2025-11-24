@@ -106,7 +106,7 @@ function like_fetch_users($post_id, $limit = 100) {
                 u.username,
                 u.first_name,
                 u.last_name,
-                u.avatar_path
+                u.avatar_blob
             FROM post_likes pl
             JOIN users u ON pl.user_id = u.id
             WHERE pl.post_id = ?

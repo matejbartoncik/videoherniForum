@@ -34,7 +34,7 @@ function comment_fetch_by_post($post_id, $limit = 100, $offset = 0) {
                 u.username AS author_username,
                 u.first_name AS author_first_name,
                 u.last_name AS author_last_name,
-                u.avatar_path AS author_avatar
+                u.avatar_blob AS author_avatar
             FROM post_comments c
             JOIN users u ON c.author_id = u.id
             WHERE c.post_id = ?

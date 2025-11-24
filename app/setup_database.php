@@ -45,7 +45,7 @@ try {
             password_hash VARCHAR(255) NOT NULL,
             role          ENUM('user','admin') NOT NULL DEFAULT 'user',
             phone         VARCHAR(30),
-            avatar_path   VARCHAR(255),
+            avatar_blob   MEDIUMBLOB,
             created_at    DATETIME NOT NULL,
             updated_at    DATETIME NOT NULL,
             UNIQUE KEY uq_users_email    (email),

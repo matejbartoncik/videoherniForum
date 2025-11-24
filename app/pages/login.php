@@ -6,7 +6,11 @@ require_once __DIR__.'/../core/csrf.php';
 $pageTitle='Přihlášení';
 
 if($_SERVER['REQUEST_METHOD']==='POST'){
-    if(auth_login($_POST['login']??'',$_POST['password']??'')){ header('Location:/app/pages/home.php'); exit; }
+    if(auth_login($_POST['login']??'',$_POST['password']??''))
+    {
+        header('Location:/');
+        exit;
+    }
     $err='Špatné přihlašovací údaje';
 }
 ?>
@@ -26,7 +30,7 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
         <input type="text" name="login" class="form-control" placeholder="Přihlašovací jméno" required>
         <input type="password" name="password" class="form-control" placeholder="Heslo" required>
 
-        <small class="small-text">Nemáte účet? <a href="../pages/register.php">Zaregistrujte se!</a></small>
+        <small class="small-text">Nemáte účet? <a href="?page=register">Zaregistrujte se!</a></small>
 
         <button type="submit">Přihlásit se</button>
     </form>

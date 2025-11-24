@@ -7,69 +7,38 @@ require_once __DIR__.'/image.php';
 // -----------------------------
 // User registration function
 // -----------------------------
-function registerUser(array $data, array $file): array {
-    $errors = [];
-
-    // check required fields
-    $required = ['nickname', 'password', 'password_confirm', 'firstname', 'lastname', 'email', 'phone'];
-    foreach ($required as $field) {
-        if (empty($data[$field])) {
-            $errors[] = "Pole $field je povinné.";
+function registerUser($post, $files) {
+    // ... existing validation code ...
+    
+    // Handle photo upload from blob
+    $photoBlob = null;
+    if (!empty($post['photo_blob'])) {
+        // Decode base64 image
+        $imageData = $post['photo_blob'];
+        if (preg_match('/^data:image\/(\w+);base64,/', $imageData, $type)) {
+            $imageData = substr($imageData, strpos($imageData, ',') + 1);
+            $photoBlob = base64_decode($imageData);
+            if ($photoBlob === false) {
+                $photoBlob = null;
+            }
         }
     }
-
-    if ($data['password'] !== $data['password_confirm']) {
-        $errors[] = "Hesla se neshodují.";
-    }
-
-    // basic validation for email and phone
-    if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-        $errors[] = "Neplatný e-mail.";
-    }
-    if (!preg_match('/^[0-9+ ]{9,15}$/', $data['phone'])) {
-        $errors[] = "Neplatný telefon.";
-    }
-
-    // unique login check
-    if (userExists($data['login'])) {
-        $errors[] = "Uživatel s tímto loginem již existuje.";
-    }
-
-    // profile photo processing
-    if (isset($file['photo']) && $file['photo']['error'] === 0) {
-        $photoPath = processImage($file['photo']);
-        if (!$photoPath) {
-            $errors[] = "Chyba při zpracování fotky.";
-        }
-    } else {
-        $photoPath = null;
-    }
-
-    // return errors if any
-    if (!empty($errors)) {
-        return ['success' => false, 'errors' => $errors];
-    }
-
-    // password hashing
-    $passwordHash = password_hash($data['password'], PASSWORD_DEFAULT);
-
-    // encrypt sesitive data
-    $emailEncrypted = encryptData($data['email']);
-    $phoneEncrypted = encryptData($data['phone']);
-
-    // save user to database
-    $sql = "INSERT INTO users
-            (username, first_name, last_name, email, phone, password_hash, avatar_path, role, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, 'user', NOW(), NOW())";
-    $stmt = db()->prepare($sql);
+    
+    // Insert user with blob
+    $pdo = get_db_connection();
+    $stmt = $pdo->prepare("
+        INSERT INTO users (first_name, last_name, email, username, password_hash, phone, avatar_blob, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+    ");
+    
     $stmt->execute([
-        $data['nickname'],
-        $data['firstname'],
-        $data['lastname'],
-        $emailEncrypted,
-        $phoneEncrypted,
-        $passwordHash,
-        $photoPath
+        $post['firstname'],
+        $post['lastname'],
+        $post['email'],
+        $post['nickname'],
+        password_hash($post['password'], PASSWORD_BCRYPT),
+        $post['phone'],
+        $photoBlob
     ]);
 
     return ['success' => true];

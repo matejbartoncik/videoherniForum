@@ -36,7 +36,7 @@ function message_fetch_inbox($user_id, $limit = 50, $offset = 0) {
                 u.username AS sender_username,
                 u.first_name AS sender_first_name,
                 u.last_name AS sender_last_name,
-                u.avatar_path AS sender_avatar
+                u.avatar_blob AS sender_avatar
             FROM messages m
             JOIN users u ON m.sender_id = u.id
             WHERE m.recipient_id = ?
@@ -69,7 +69,7 @@ function message_fetch_sent($user_id, $limit = 50, $offset = 0) {
                 u.username AS recipient_username,
                 u.first_name AS recipient_first_name,
                 u.last_name AS recipient_last_name,
-                u.avatar_path AS recipient_avatar
+                u.avatar_blob AS recipient_avatar
             FROM messages m
             JOIN users u ON m.recipient_id = u.id
             WHERE m.sender_id = ?
@@ -96,11 +96,11 @@ function message_fetch_by_id($message_id, $user_id) {
                 sender.username AS sender_username,
                 sender.first_name AS sender_first_name,
                 sender.last_name AS sender_last_name,
-                sender.avatar_path AS sender_avatar,
+                sender.avatar_blob AS sender_avatar,
                 recipient.username AS recipient_username,
                 recipient.first_name AS recipient_first_name,
                 recipient.last_name AS recipient_last_name,
-                recipient.avatar_path AS recipient_avatar
+                recipient.avatar_blob AS recipient_avatar
             FROM messages m
             JOIN users sender ON m.sender_id = sender.id
             JOIN users recipient ON m.recipient_id = recipient.id
@@ -178,7 +178,7 @@ function message_fetch_all_users($exclude_user_id = null) {
         $pdo = get_db_connection();
         if ($exclude_user_id) {
             $stmt = $pdo->prepare("
-                SELECT id, username, first_name, last_name, avatar_path
+                SELECT id, username, first_name, last_name, avatar_blob
                 FROM users
                 WHERE id != ?
                 ORDER BY username
@@ -186,7 +186,7 @@ function message_fetch_all_users($exclude_user_id = null) {
             $stmt->execute([$exclude_user_id]);
         } else {
             $stmt = $pdo->query("
-                SELECT id, username, first_name, last_name, avatar_path
+                SELECT id, username, first_name, last_name, avatar_blob
                 FROM users
                 ORDER BY username
             ");

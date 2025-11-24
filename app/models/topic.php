@@ -35,7 +35,7 @@ function topic_fetch_all($limit = 50, $offset = 0) {
                 u.username AS author_username,
                 u.first_name AS author_first_name,
                 u.last_name AS author_last_name,
-                u.avatar_path AS author_avatar,
+                u.avatar_blob AS author_avatar,
                 (SELECT COUNT(*) FROM post_comments WHERE post_id = p.id) AS comments_count,
                 (SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS likes_count
             FROM posts p
@@ -63,7 +63,7 @@ function topic_fetch_by_id($topic_id) {
                 u.username AS author_username,
                 u.first_name AS author_first_name,
                 u.last_name AS author_last_name,
-                u.avatar_path AS author_avatar,
+                u.avatar_blob AS author_avatar,
                 (SELECT COUNT(*) FROM post_comments WHERE post_id = p.id) AS comments_count,
                 (SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS likes_count
             FROM posts p

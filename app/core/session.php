@@ -6,7 +6,7 @@ function loginUserSession(array $user)
 {
     $_SESSION['user'] = [
         'id' => $user['id'],
-        'login' => $user['login'],
+        'login' => $user['username'],
         'role' => $user['role']
     ];
     $_SESSION['last_activity'] = time();

@@ -50,17 +50,6 @@
                 </li>
             <?php endif; ?>
         </ul>
-
-        <?php if ($currentUser): ?>
-            <hr>
-            <div class="text-white text-center">
-                <small>Přihlášen jako:</small><br>
-                <strong><?= htmlspecialchars($currentUser['username']) ?></strong>
-                <?php if ($currentUser['role'] === 'admin'): ?>
-                    <span class="badge bg-warning text-dark">Admin</span>
-                <?php endif; ?>
-            </div>
-        <?php endif; ?>
     </div>
 
     <!-- Mobile sidebar - same changes -->

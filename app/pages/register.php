@@ -34,11 +34,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <div class="avatar-wrapper">
-            <div class="avatar-placeholder"></div>
-            <button type="button" class="upload-btn">Nahrát obrázek</button>
-        </div>
+            
+                <img id="avatarPreview" class="" src="https://avatar.iran.liara.run/public" style="width: 200px; height: 200px; object-fit: cover; border-radius: 50%;" />
+                <button type="button" class="upload-btn" id="uploadBtn">Nahrát obrázek</button>
+            </div>
 
-        <input type="file" name="photo" id="photoInput" accept="image/*" style="display:none;">
+            <input type="file" id="photoInput" accept="image/*" style="display:none;">
+            <input type="hidden" name="photo_blob" id="photoBlob">
 
         <div class="form-group">
             <label>Přezdívka</label>
@@ -83,19 +85,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </form>
 
     <script>
-        const form = document.querySelector(".register-form");
-        const password = form.querySelector("input[name='password']");
-        const passwordConfirm = form.querySelector("input[name='password_confirm']");
-        const errorMessage = passwordConfirm.nextElementSibling;
+            const form = document.querySelector(".register-form");
+            const password = form.querySelector("input[name='password']");
+            const passwordConfirm = form.querySelector("input[name='password_confirm']");
+            const errorMessage = passwordConfirm.nextElementSibling;
+            
+            // Profile picture upload functionality
+            const uploadBtn = document.getElementById('uploadBtn');
+            const photoInput = document.getElementById('photoInput');
+            const avatarPreview = document.getElementById('avatarPreview');
+            const photoBlob = document.getElementById('photoBlob');
+            
+            uploadBtn.addEventListener('click', function() {
+                photoInput.click();
+            });
+            
+            photoInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const img = new Image();
+                        img.onload = function() {
+                            // Create canvas for 200x200 crop
+                            const canvas = document.createElement('canvas');
+                            canvas.width = 200;
+                            canvas.height = 200;
+                            const ctx = canvas.getContext('2d');
+                            
+                            // Calculate dimensions to crop to square
+                            const size = Math.min(img.width, img.height);
+                            const x = (img.width - size) / 2;
+                            const y = (img.height - size) / 2;
+                            
+                            // Draw cropped and resized image
+                            ctx.drawImage(img, x, y, size, size, 0, 0, 200, 200);
+                            
+                            // Update preview
+                            avatarPreview.src = canvas.toDataURL('image/jpeg', 0.9);
+                            
+                            // Convert to base64 for form submission
+                            photoBlob.value = canvas.toDataURL('image/jpeg', 0.9);
+                        };
+                        img.src = event.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
 
-        form.addEventListener("submit", function(e) {
-            if (password.value !== passwordConfirm.value) {
-                e.preventDefault();
-                errorMessage.textContent = "Hesla se musí shodovat!";
-                errorMessage.style.display = "block";
-            } else {
-                errorMessage.style.display = "none";
-            }
-        });
-    </script>
+            form.addEventListener("submit", function(e) {
+                if (password.value !== passwordConfirm.value) {
+                    e.preventDefault();
+                    errorMessage.textContent = "Hesla se musí shodovat!";
+                    errorMessage.style.display = "block";
+                } else {
+                    errorMessage.style.display = "none";
+                }
+            });
+        </script>
 </div>
