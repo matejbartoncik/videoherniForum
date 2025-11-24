@@ -11,11 +11,15 @@ function registerUser(array $data, array $file): array {
     $errors = [];
 
     // check required fields
-    $required = ['firstname', 'lastname', 'email', 'phone', 'gender', 'login', 'password'];
+    $required = ['nickname', 'password', 'password_confirm', 'firstname', 'lastname', 'email', 'phone'];
     foreach ($required as $field) {
         if (empty($data[$field])) {
             $errors[] = "Pole $field je povinné.";
         }
+    }
+
+    if ($data['password'] !== $data['password_confirm']) {
+        $errors[] = "Hesla se neshodují.";
     }
 
     // basic validation for email and phone
@@ -32,7 +36,6 @@ function registerUser(array $data, array $file): array {
     }
 
     // profile photo processing
-
     if (isset($file['photo']) && $file['photo']['error'] === 0) {
         $photoPath = processImage($file['photo']);
         if (!$photoPath) {
@@ -56,16 +59,15 @@ function registerUser(array $data, array $file): array {
 
     // save user to database
     $sql = "INSERT INTO users
-            (firstname, lastname, email, phone, gender, login, password_hash, photo_path, role)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'user')";
+            (username, first_name, last_name, email, phone, password_hash, avatar_path, role, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 'user', NOW(), NOW())";
     $stmt = db()->prepare($sql);
     $stmt->execute([
+        $data['nickname'],
         $data['firstname'],
         $data['lastname'],
         $emailEncrypted,
         $phoneEncrypted,
-        $data['gender'],
-        $data['login'],
         $passwordHash,
         $photoPath
     ]);
@@ -77,7 +79,7 @@ function registerUser(array $data, array $file): array {
 // User login function
 // -----------------------------
 function auth_login(string $login, string $password): bool {
-    $sql = "SELECT * FROM users WHERE login = ?";
+    $sql = "SELECT * FROM users WHERE username = ?";
     $stmt = db()->prepare($sql);
     $stmt->execute([$login]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -96,7 +98,7 @@ function auth_login(string $login, string $password): bool {
 // Check if user login exists
 // -----------------------------
 function userExists(string $login): bool {
-    $sql = "SELECT COUNT(*) FROM users WHERE login = ?";
+    $sql = "SELECT COUNT(*) FROM users WHERE username = ?";
     $stmt = db()->prepare($sql);
     $stmt->execute([$login]);
     return $stmt->fetchColumn() > 0;
