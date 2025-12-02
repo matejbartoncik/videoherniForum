@@ -126,7 +126,7 @@ $avatarDataUri = user_get_avatar_data_uri($user) ?: 'https://avatar.iran.liara.r
 ?>
 <link rel="stylesheet" href="public/assets/style/profile.css">
 
-<div class="container mt-5">
+<div class="profile-container">
     <h1 class="mb-4">Můj profil</h1>
 
     <?php if (!empty($errors)): ?>
@@ -141,108 +141,92 @@ $avatarDataUri = user_get_avatar_data_uri($user) ?: 'https://avatar.iran.liara.r
         <div class="alert alert-success"><?= htmlspecialchars($success) ?></div>
     <?php endif; ?>
 
-    <div class="row">
-        <!-- Avatar Section -->
-        <div class="col-md-4 mb-4">
-            <div class="card">
-                <div class="card-body text-center">
-                    <img id="avatarPreview" src="<?= htmlspecialchars($avatarDataUri) ?>"
-                         alt="Avatar" class="rounded-circle mb-3"
-                         style="width: 200px; height: 200px; object-fit: cover;">
-
-                    <form method="post" id="avatarForm">
-                        <input type="hidden" name="csrf" value="<?= htmlspecialchars(csrf_token()) ?>">
-                        <input type="hidden" name="action" value="update_avatar">
-                        <input type="hidden" name="avatar_blob" id="avatarBlob">
-                        <input type="file" id="avatarInput" accept="image/*" style="display:none;">
-                        <button type="button" class="btn btn-primary" id="uploadAvatarBtn">
-                            <i class="fa-solid fa-camera"></i> Změnit avatar
-                        </button>
-                    </form>
-
-                    <div class="mt-3">
-                        <strong><?= htmlspecialchars($user['username']) ?></strong>
-                        <div class="text-muted"><?= htmlspecialchars($user['role']) ?></div>
-                    </div>
-                </div>
-            </div>
+    <!-- Avatar Section -->
+    <div class="card-profile">
+        <div class="avatar-wrapper">
+            <img id="avatarPreview" src="<?= htmlspecialchars($avatarDataUri) ?>"
+                 alt="Avatar" class="avatar-img">
         </div>
 
-        <!-- Profile Info Section -->
-        <div class="col-md-8">
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">Osobní údaje</h5>
-                </div>
-                <div class="card-body">
-                    <form method="post">
-                        <input type="hidden" name="csrf" value="<?= htmlspecialchars(csrf_token()) ?>">
-                        <input type="hidden" name="action" value="update_profile">
-
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Jméno</label>
-                                <input type="text" name="first_name" class="form-control"
-                                       value="<?= htmlspecialchars($user['first_name']) ?>" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Příjmení</label>
-                                <input type="text" name="last_name" class="form-control"
-                                       value="<?= htmlspecialchars($user['last_name']) ?>" required>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Email</label>
-                            <input type="email" name="email" class="form-control"
-                                   value="<?= htmlspecialchars($user['email']) ?>" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Telefon</label>
-                            <input type="tel" name="phone" class="form-control"
-                                   value="<?= htmlspecialchars($user['phone'] ?? '') ?>">
-                        </div>
-
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fa-solid fa-save"></i> Uložit změny
-                        </button>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Password Change Section -->
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Změna hesla</h5>
-                </div>
-                <div class="card-body">
-                    <form method="post">
-                        <input type="hidden" name="csrf" value="<?= htmlspecialchars(csrf_token()) ?>">
-                        <input type="hidden" name="action" value="change_password">
-
-                        <div class="mb-3">
-                            <label class="form-label">Současné heslo</label>
-                            <input type="password" name="current_password" class="form-control" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Nové heslo</label>
-                            <input type="password" name="new_password" class="form-control" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Potvrzení nového hesla</label>
-                            <input type="password" name="confirm_password" class="form-control" required>
-                        </div>
-
-                        <button type="submit" class="btn btn-warning">
-                            <i class="fa-solid fa-key"></i> Změnit heslo
-                        </button>
-                    </form>
-                </div>
-            </div>
+        <div class="profile-name"><?= htmlspecialchars($user['username']) ?></div>
+        <div class="profile-role role-<?= strtolower($user['role']) ?>">
+            <?= htmlspecialchars($user['role']) ?>
         </div>
+
+        <form method="post" id="avatarForm" class="avatar-form">
+            <input type="hidden" name="csrf" value="<?= htmlspecialchars(csrf_token()) ?>">
+            <input type="hidden" name="action" value="update_avatar">
+            <input type="hidden" name="avatar_blob" id="avatarBlob">
+            <input type="file" id="avatarInput" accept="image/*" style="display:none;">
+            <button type="button" class="btn-main" id="uploadAvatarBtn">
+                <i class="fa-solid fa-camera"></i> Změnit avatar
+            </button>
+        </form>
+    </div>
+
+    <!-- Profile Info Section -->
+    <div class="card-section">
+        <h5 class="section-title">Osobní údaje</h5>
+        <form method="post" class="form-section">
+            <input type="hidden" name="csrf" value="<?= htmlspecialchars(csrf_token()) ?>">
+            <input type="hidden" name="action" value="update_profile">
+
+            <div>
+                <label for="first_name" class="input-label">Jméno</label>
+                <input type="text" id="first_name" name="first_name" class="input-field"
+                       value="<?= htmlspecialchars($user['first_name']) ?>" required>
+            </div>
+
+            <div>
+                <label for="last_name" class="input-label">Příjmení</label>
+                <input type="text" id="last_name" name="last_name" class="input-field"
+                       value="<?= htmlspecialchars($user['last_name']) ?>" required>
+            </div>
+
+            <div>
+                <label for="email" class="input-label">Email</label>
+                <input type="email" id="email" name="email" class="input-field"
+                       value="<?= htmlspecialchars($user['email']) ?>" required>
+            </div>
+
+            <div>
+                <label for="phone" class="input-label">Telefon</label>
+                <input type="tel" id="phone" name="phone" class="input-field"
+                       value="<?= htmlspecialchars($user['phone'] ?? '') ?>">
+            </div>
+
+            <button type="submit" class="btn-main">
+                <i class="fa-solid fa-save"></i> Uložit změny
+            </button>
+        </form>
+    </div>
+
+    <!-- Password Change Section -->
+    <div class="card-section">
+        <h5 class="section-title">Změna hesla</h5>
+        <form method="post" class="form-section">
+            <input type="hidden" name="csrf" value="<?= htmlspecialchars(csrf_token()) ?>">
+            <input type="hidden" name="action" value="change_password">
+
+            <div>
+                <label for="current_password" class="input-label">Současné heslo</label>
+                <input type="password" id="current_password" name="current_password" class="input-field" required>
+            </div>
+
+            <div>
+                <label for="new_password" class="input-label">Nové heslo</label>
+                <input type="password" id="new_password" name="new_password" class="input-field" required>
+            </div>
+
+            <div>
+                <label for="confirm_password" class="input-label">Potvrzení nového hesla</label>
+                <input type="password" id="confirm_password" name="confirm_password" class="input-field" required>
+            </div>
+
+            <button type="submit" class="btn-main">
+                <i class="fa-solid fa-key"></i> Změnit heslo
+            </button>
+        </form>
     </div>
 </div>
 
