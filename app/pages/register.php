@@ -5,8 +5,21 @@ require_once __DIR__.'/../core/csrf.php';
 
 $pageTitle = 'Registrace';
 
+// Fetch default avatar from API
+$defaultAvatar = @file_get_contents('https://avatar.iran.liara.run/public');
+if ($defaultAvatar !== false) {
+    // Convert to base64 data URI
+    $pfp = 'data:image/jpeg;base64,' . base64_encode($defaultAvatar);
+} else {
+    $pfp = null;
+}
+
 // Handle form submission via POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (empty($_POST['photo_blob'])) {
+        $_POST['photo_blob'] = $pfp;
+    }
+    
     $result = registerUser($_POST, $_FILES);
     if ($result['success']) {
         // Redirect after successful registration
@@ -33,11 +46,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         <?php endif; ?>
 
-        <div class="avatar-wrapper">
+            <div class="avatar-wrapper">
             
-                <img id="avatarPreview" class="" src="https://avatar.iran.liara.run/public" style="width: 200px; height: 200px; object-fit: cover; border-radius: 50%;" />
-                <button type="button" class="upload-btn" id="uploadBtn">Nahrát obrázek</button>
-            </div>
+                    <img id="avatarPreview" class="" src="<?= htmlspecialchars($pfp, ENT_QUOTES) ?>" style="width: 200px; height: 200px; object-fit: cover; border-radius: 50%;" />
+                    <button type="button" class="upload-btn" id="uploadBtn">Nahrát obrázek</button>
+                </div>
 
             <input type="file" id="photoInput" accept="image/*" style="display:none;">
             <input type="hidden" name="photo_blob" id="photoBlob">
@@ -95,7 +108,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const photoInput = document.getElementById('photoInput');
             const avatarPreview = document.getElementById('avatarPreview');
             const photoBlob = document.getElementById('photoBlob');
-            
+
+            photoBlob.value = '<?= addslashes($pfp) ?>';
+
             uploadBtn.addEventListener('click', function() {
                 photoInput.click();
             });
