@@ -124,6 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $avatarDataUri = user_get_avatar_data_uri($user) ?: 'https://avatar.iran.liara.run/public';
 ?>
+<link rel="stylesheet" href="public/assets/style/profile.css">
 
 <div class="container mt-5">
     <h1 class="mb-4">Můj profil</h1>
