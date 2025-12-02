@@ -52,8 +52,46 @@
         </ul>
     </div>
 
-    <!-- Mobile sidebar - same changes -->
-    <!-- (keeping your existing offcanvas code but with same login/logout logic) -->
+    <!-- Mobile sidebar (offcanvas) -->
+    <div class="offcanvas offcanvas-start text-bg-dark" tabindex="-1" id="sidebarOffcanvas">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title">Videoherní Fórum</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body">
+            <ul class="nav nav-pills flex-column mb-auto text-center fs-5">
+                <li class="nav-item">
+                    <a href="?page=home" class="nav-link text-white <?= $pageTitle=='Domů' ? 'active':'' ?>">
+                        <i class="fa-solid fa-house"></i> Domů
+                    </a>
+                </li>
+
+                <?php if ($currentUser): ?>
+                    <li>
+                        <a href="?page=messages" class="nav-link text-white <?= $pageTitle=='Zprávy' ? 'active':'' ?>">
+                            <i class="fa-solid fa-inbox"></i> Zprávy
+                        </a>
+                    </li>
+                    <li>
+                        <a href="?page=profile" class="nav-link text-white <?= $pageTitle=='Profil' ? 'active':'' ?>">
+                            <i class="fa-solid fa-user"></i> Profil
+                        </a>
+                    </li>
+                    <li>
+                        <a href="?page=logout" class="nav-link text-white">
+                            <i class="fa-solid fa-sign-out-alt"></i> Odhlásit se
+                        </a>
+                    </li>
+                <?php else: ?>
+                    <li>
+                        <a href="?page=login" class="nav-link text-white <?= $pageTitle=='Přihlášení' ? 'active':'' ?>">
+                            <i class="fa-solid fa-sign-in-alt"></i> Přihlásit se
+                        </a>
+                    </li>
+                <?php endif; ?>
+            </ul>
+        </div>
+    </div>
 
     <main class="p-4 flex-grow-1">
         <button class="btn btn-outline-secondary d-md-none mb-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
