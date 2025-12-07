@@ -5,8 +5,14 @@
     overflow: hidden;
     border-radius: 12px;
     padding: 20px;
-
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    max-width: 100%;
+}
+
+/* Fix for responsive panels */
+.left-panel, .right-panel {
+    min-width: 0;
+    max-width: 100%;
 }
 
 /* Layout container */
@@ -15,6 +21,8 @@
     grid-template-columns: 1fr 300px;
     gap: 20px;
     margin-top: 5rem;
+    max-width: 100%;
+    overflow: hidden;
 }
 
 /* Left panel list */
@@ -23,6 +31,16 @@
     border: none;
     padding: 12px;
     border-radius: 10px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.message-list .list-group-item .fw-semibold,
+.message-list .list-group-item .text-muted {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
 }
 
 .message-list .list-group-item:hover {
@@ -42,6 +60,16 @@
     padding: 20px;
     min-height: 200px;
     box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.25);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    overflow: auto;
+}
+
+.message-body-box p {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    margin: 0;
 }
 
 /* Empty state */
@@ -53,30 +81,45 @@
 #messageDetailOffcanvas .offcanvas-body {
     padding: 1.25rem 1.25rem 2.5rem;
 }
+
 #messageDetailContent .message-body-box {
-    background: #fff;
+    background: rgba(166, 159, 249, 0.28);
     border-radius: 10px;
     padding: 16px 18px;
-    box-shadow: inset 0 2px 6px rgba(0,0,0,0.08);
-}
-#messageDetailOffcanvas {
-    width: 100%; /* full width na velmi malych displejich */
-}
-@media (min-width: 420px) and (max-width: 767.98px) {
-    #messageDetailOffcanvas { width: 380px; }
-}
-/* Skryj levý panel na mobilech pokud se zobrazuje offcanvas (handled JS event optional) */
-@media (max-width: 767.98px) {
-    .left-panel { display: none; }
-    .messages-container { grid-template-columns: 1fr; }
+    box-shadow: inset 0 2px 6px rgba(0,0,0,0.25);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    overflow: auto;
 }
 
-@media (max-width: 768px) {
+#messageDetailOffcanvas {
+    width: 90%; /* 90% width on small devices */
+    max-width: 500px;
+}
+
+@media (max-width: 575.98px) {
+    #messageDetailOffcanvas { 
+        width: 100%; 
+        max-width: 100%;
+    }
+}
+/* Mobile responsive layout */
+@media (max-width: 991.98px) {
     .messages-container {
         grid-template-columns: 1fr;
+        margin-top: 2rem;
     }
+    
+    /* Hide left panel on mobile, show only message list */
     .left-panel {
-        margin-bottom: 20px;
+        display: none;
+    }
+    
+    /* Make right panel (message list) full width */
+    .right-panel {
+        width: 100%;
+        max-width: 100%;
     }
 }
 

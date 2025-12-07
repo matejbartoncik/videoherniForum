@@ -155,6 +155,17 @@ if (isset($_GET['id'])) {
     </div>
 </div>
 
+<!-- OFFCANVAS — MESSAGE DETAIL (for mobile) -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="messageDetailOffcanvas">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title">Detail zprávy</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body" id="messageDetailContent">
+        <!-- Content will be injected by JavaScript -->
+    </div>
+</div>
+
 <!-- MODAL — NEW MESSAGE -->
 <div class="modal fade" id="newMessageModal" tabindex="-1">
     <div class="modal-dialog">
