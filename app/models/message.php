@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../core/db.php';
+require_once __DIR__ . '/../core/crypto.php';
 
 /**
  * Send a message
@@ -11,7 +12,7 @@ function message_send($sender_id, $recipient_id, $subject, $body) {
             INSERT INTO messages (sender_id, recipient_id, subject, body, created_at)
             VALUES (?, ?, ?, ?, NOW())
         ");
-        return $stmt->execute([$sender_id, $recipient_id, $subject, $body]);
+        return $stmt->execute([$sender_id, $recipient_id, encryptData($subject), encryptData($body)]);
     } catch (PDOException $e) {
         error_log("Error sending message: " . $e->getMessage());
         return false;

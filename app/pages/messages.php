@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../models/message.php';
+require_once __DIR__ . '/../core/crypto.php';
 
 // Ensure user session exists
 if (!isset($_SESSION['user'])) {
@@ -36,11 +37,28 @@ $users = message_fetch_all_users($_SESSION['user']['id']);
 // Fetch inbox messages
 $inbox = message_fetch_inbox($_SESSION['user']['id']);
 
+// Decrypt inbox messages
+foreach ($inbox as &$msg) {
+    $msg['body'] = decryptData($msg['body']);
+    if (!empty($msg['subject'])) {
+        $msg['subject'] = decryptData($msg['subject']);
+    }
+}
+unset($msg); // Break reference
+
 // Get current message detail
 $currentMessage = null;
 if (isset($_GET['id'])) {
     $id = (int)$_GET['id'];
     $currentMessage = message_fetch_by_id($id, $_SESSION['user']['id']);
+
+    // Decrypt current message
+    if ($currentMessage) {
+        $currentMessage['body'] = decryptData($currentMessage['body']);
+        if (!empty($currentMessage['subject'])) {
+            $currentMessage['subject'] = decryptData($currentMessage['subject']);
+        }
+    }
 
     // Mark as read if recipient is viewing
     if ($currentMessage && $currentMessage['recipient_id'] === $_SESSION['user']['id']) {
