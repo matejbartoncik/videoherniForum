@@ -4,6 +4,9 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+require_once __DIR__ . '/core/session.php';
+checkSessionTimeout();
+
 // Get the requested page from URL parameter, default to 'home'
 $page = isset($_GET['page']) ? $_GET['page'] : 'home';
 
