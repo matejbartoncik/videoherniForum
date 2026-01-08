@@ -82,6 +82,30 @@ function api_user_profile(array $user): array {
     ];
 }
 
+function api_post_summary(array $post): array {
+    $avatar = null;
+    if (!empty($post['author_avatar'])) {
+        $avatar = 'data:image/jpeg;base64,' . base64_encode($post['author_avatar']);
+    }
+
+    return [
+        'id' => (int) $post['id'],
+        'title' => $post['title'],
+        'content' => $post['content'],
+        'created_at' => $post['created_at'],
+        'updated_at' => $post['updated_at'],
+        'author' => [
+            'id' => (int) $post['author_id'],
+            'username' => $post['author_username'],
+            'first_name' => $post['author_first_name'],
+            'last_name' => $post['author_last_name'],
+            'avatar' => $avatar,
+        ],
+        'comments_count' => (int) ($post['comments_count'] ?? 0),
+        'likes_count' => (int) ($post['likes_count'] ?? 0),
+    ];
+}
+
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $action = $_GET['action'] ?? '';
 
@@ -271,6 +295,28 @@ switch ($action) {
         api_response(200, [
             'success' => true,
             'user' => api_user_profile($user),
+        ]);
+        break;
+
+    case 'posts':
+        if ($method !== 'GET') {
+            api_error(405, 'Použijte GET.');
+        }
+
+        $limit = api_get_param($_GET, 'limit');
+        $offset = api_get_param($_GET, 'offset');
+        $limitValue = $limit !== null ? max(1, (int) $limit) : 50;
+        $offsetValue = $offset !== null ? max(0, (int) $offset) : 0;
+
+        $posts = topic_fetch_all($limitValue, $offsetValue);
+        $payload = [];
+        foreach ($posts as $post) {
+            $payload[] = api_post_summary($post);
+        }
+
+        api_response(200, [
+            'success' => true,
+            'posts' => $payload,
         ]);
         break;
 
